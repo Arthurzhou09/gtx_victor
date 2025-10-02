@@ -14,3 +14,6 @@ code_kan/model/
 code_kan/figures/
 
 **/*.tar.gz
+
+*.log
+*.keras
