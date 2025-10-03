@@ -4,7 +4,7 @@ from datetime import datetime
 role = 'arn:aws:iam::425873948573:role/service-role/AmazonSageMaker-ExecutionRole-20220524T140113'
 
 
-model_name = "model_hikaru_dropout"
+model_name = "model_hikaru"
 seed = 1024
 train_subset = 1000
 activation = "relu"
