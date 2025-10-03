@@ -6,12 +6,12 @@ role = 'arn:aws:iam::425873948573:role/service-role/AmazonSageMaker-ExecutionRol
 
 model_name = "model_hikaru_dropout"
 seed = 1024
-train_subset = 8000
+train_subset = 1000
 activation = "relu"
 optimizer = "Adam"
-epochs = 100
+epochs = 50
 nF = 6
-learningRate = 5e-4
+learningRate = 1e-3
 batch = 32
 xX = 101
 yY = 101
@@ -33,8 +33,8 @@ nFilters2D = 128
 kernelConv2D = "3 3"
 strideConv2D = "1 1"
 
-data_path = "ts_2d_10000_original_TBR.mat" # <--- Change this if you want to use a different dataset
-bucket_name = "20250509-victor" # <--- Change this to your own bucket
+data_path = "padded_DL_nImages1000_newOP_elecNoise.mat" # <--- Change this if you want to use a different dataset
+bucket_name = "20250909-arthur" # <--- Change this to your own bucket
 
 estimator = TensorFlow(
     entry_point='train_tf.py',     # Entry script
@@ -77,12 +77,12 @@ estimator = TensorFlow(
         "strideConv2D": strideConv2D,
         "data_path": data_path
     },
-    output_path=f's3://{bucket_name}/tf_training_output/' # <--- Change this to your own bucket and output path
+    output_path=f's3://{bucket_name}/training_output/' # <--- Change this to your own bucket and output path
 )
 # job_name = f'vvv-tfTrain-{train_subset}-{seed}-{"_".join(data_path.split(".")[0].split("_")[:2])}-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
 # job_name = job_name.replace("_", "-")
-job_name = "vvvv-test-model-hikaru-original-dropout-1"
+job_name = f"arthur-test-run-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 inputs = {
-    'training': f's3://{bucket_name}/python_training_data_sim/{data_path}',
+    'training': f's3://{bucket_name}/data/{data_path}',
 }
 estimator.fit(inputs=inputs, job_name=job_name)
