@@ -17,8 +17,15 @@ class FluorescenceDataset(Dataset):
         self.concentration = torch.tensor(data['concentration_fluor'], dtype=torch.float32)
         self.depth = torch.tensor(data['depth'], dtype=torch.float32)
 
+        print("Dataset shapes:", self.fluorescence.shape, self.mu_a.shape, self.mu_s.shape, self.concentration.shape, self.depth.shape)
+
+        self.fluorescence = self.fluorescence.permute(0,3,1,2).unsqueeze(1)
+        self.op = torch.cat([self.mu_a.unsqueeze(1), self.mu_s.unsqueeze(1)], dim=1)
+        self.concentration = self.concentration.unsqueeze(1)
+        self.depth = self.depth.unsqueeze(1)
+
     def __len__(self):
         return self.fluorescence.shape[0]
 
     def __getitem__(self, idx):
-        return self.fluorescence[idx], self.mu_a[idx], self.mu_s[idx], self.concentration[idx], self.depth[idx]
+        return self.fluorescence[idx], self.op[idx], self.concentration[idx], self.depth[idx]

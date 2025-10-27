@@ -1,5 +1,6 @@
 import scipy.io as sio
 import numpy as np
+import mat73
 
 def scale_data(data_dict, params):
     scaled_data_dict = {}
@@ -23,8 +24,13 @@ def normalization(fluorescence, optical_props):
     return f, mu_a_norm, mu_s_norm
 
 def load_split_data(file_path):
-    data = sio.loadmat(file_path)
-    
+
+    try:
+        data = sio.loadmat(file_path)
+    except:
+        data = mat73.loadmat(file_path)
+
+
     data = {k: v for k, v in data.items() if not k.startswith('__')}
 
     splits = ['train', 'val', 'test']
@@ -35,7 +41,7 @@ def load_split_data(file_path):
             if key.startswith(split + '_'):
                 field = key[len(split) + 1:]
                 data_by_split[split][field] = value
-
+    print("data by split", data_by_split.keys(), data_by_split)
     return data_by_split
 
 def load_data(file_path, scale_params=None):
@@ -44,11 +50,11 @@ def load_data(file_path, scale_params=None):
     result = {}
 
     for type in ['train', 'val', 'test']:
-        fluorescence = data_by_split[type]['fluorescence']
-        optical_props = data_by_split[type]['optical_props']
-        depth = data_by_split[type]['depth']
-        concentration_fluor = data_by_split[type]['concentration_fluor']
-        reflectance = data_by_split[type]['reflectance']
+        fluorescence = data_by_split[type]['F']
+        optical_props = data_by_split[type]['OP']
+        depth = data_by_split[type]['DF']
+        concentration_fluor = data_by_split[type]['QF']
+        reflectance = data_by_split[type]['RE']
 
         f, mu_a_norm, mu_s_norm = normalization(fluorescence, optical_props)
         # scaled_data_dict = scale_data({
@@ -70,3 +76,37 @@ def load_data(file_path, scale_params=None):
         result[type] = data_dict
 
     return result
+
+
+def read_data(file_path, scale_params=None):
+    try:
+        data = sio.loadmat(file_path)
+        data_key = [k for k in data.keys() if not k.startswith('___')] 
+
+        assert len(data_key) == 1, "more than one struct in file, please reformat"
+
+        fluorescence = data[data_key[0]].F
+        optical_props = data[data_key[0]].OP
+        depth = data[data_key[0]].DF
+        concentration_fluor = data[data_key[0]].QF
+        reflectance = data[data_key[0]].RE
+    except:
+        data = mat73.loadmat(file_path)
+        fluorescence = data['F']
+        optical_props = data['OP']
+        depth = data['DF']
+        concentration_fluor = data['QF']
+        reflectance = data['RE']
+
+    
+    f, mu_a_norm, mu_s_norm = normalization(fluorescence, optical_props)
+
+    data_dict = {
+            'fluorescence': f,
+            'reflectance': reflectance,
+            'depth': depth, 
+            'mu_a': mu_a_norm,
+            'mu_s': mu_s_norm,
+            'concentration_fluor': concentration_fluor}
+
+    return data_dict
