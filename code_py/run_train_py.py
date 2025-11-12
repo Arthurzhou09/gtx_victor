@@ -77,7 +77,6 @@ if __name__ == "__main__":
 
     torch.set_float32_matmul_precision('medium')
 
-        
     #load data
     data_mod = FluorescenceDataModule(params, scale_params, batch_size=params['batch'])
     data_mod.prepare_data()
@@ -89,14 +88,18 @@ if __name__ == "__main__":
     #change this for saving chekcpoints and loss
     if params['sagemaker']:
         model_dir = f'/opt/ml/model'
+        save_dir = os.path.join(model_dir, 'modelckpt')
     else:
-        print("not implemented")
+        experiment_name ='testing_lightning_local'
+        root_dir = "/mnt/c/Users/Arthur Zhou/Documents/DL/logger"
+        save_dir =os.path.join(root_dir,experiment_name)
+        os.makedirs(save_dir, exist_ok=True)
 
 
     """root_dir = "/mnt/c/Users/Arthur Zhou/Documents/ML/logger"
     save_dir =os.path.join(root_dir, f"{experiment_name}")"""
 
-    save_dir = os.path.join(model_dir, 'modelckpt')
+    
     #os.makedirs(save_dir, exist_ok=True)
 
     #experiment_name = " " + "_log"
